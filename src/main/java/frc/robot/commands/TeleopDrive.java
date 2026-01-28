@@ -4,6 +4,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Constants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.subsystems.SwerveDrive;
@@ -16,6 +17,11 @@ public class TeleopDrive extends Command {
         /***
          * Fill out this command constructor
          */
+
+         this.swerveDrive = swerveDrive;
+         this.controller = controller;
+
+         addRequirements(swerveDrive);
     }
     
     @Override
@@ -25,30 +31,30 @@ public class TeleopDrive extends Command {
          * Also look into OIConstants in Constants.java to make sure the controller syncs correctly
          * Might have to negate something 🤔🤔🤔. Do some trial and error.
          */
-        double xInput = ;
-        double yInput = ;
-        double rotInput = ;
+        double xInput = controller.getRawAxis(Constants.OIConstants.LEFT_X_AXIS);
+        double yInput = controller.getRawAxis(Constants.OIConstants.LEFT_Y_AXIS);
+        double rotInput = controller.getRawAxis(Constants.OIConstants.RIGHT_X_AXIS);
 
         /***
          * Apply a deadband to these inputs. Look at OIConstants.
          */
-        xInput = MathUtil.applyDeadband(xInput, );
-        yInput = MathUtil.applyDeadband(yInput, );
-        rotInput = MathUtil.applyDeadband(rotInput, );
+        xInput = MathUtil.applyDeadband(xInput, Constants.OIConstants.DEADBAND);
+        yInput = MathUtil.applyDeadband(yInput, Constants.OIConstants.DEADBAND);
+        rotInput = MathUtil.applyDeadband(rotInput, Constants.OIConstants.DEADBAND);
         
         // Challenge: square the inputs while preserving the signs
 
         /***
          * Use the inputs and look at constants for the following: the max speed, the speed multipler. What do we do with these?
          */
-        double xSpeed = xInput * ;
-        double ySpeed = yInput * ;
-        double rotSpeed = rotInput * ;
+        double xSpeed = xInput * Constants.OIConstants.SPEED_MULTIPLIER * Constants.SwerveConstants.MAX_SPEED_MPS;
+        double ySpeed = yInput * Constants.OIConstants.SPEED_MULTIPLIER * Constants.SwerveConstants.MAX_SPEED_MPS;
+        double rotSpeed = rotInput * Constants.OIConstants.SPEED_MULTIPLIER * Constants.SwerveConstants.MAX_SPEED_MPS;
         
         /***
          * Fix the error here. What are the arguments to the method? Hint: look at the end method below...
          */
-        swerveDrive.drive();
+        swerveDrive.drive(new Translation2d(xSpeed, ySpeed), rotSpeed);
     }
     
     @Override

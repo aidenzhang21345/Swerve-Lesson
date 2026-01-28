@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -65,20 +66,21 @@ public class SwerveModule {
         /***
          * Look into SwerveModuleState.optimize. Think about what we are trying to optimize.
          */
-        desiredState.optimize();
+        desiredState.optimize(desiredState.angle);
 
         /***
          * Look at the properties of desireState that might be useful. Also make sure to keep turnPositionSetpoint in radians.
          */
         
-        driveVelocitySetpoint = ;
-        turnPositionSetpoint = ;
+        driveVelocitySetpoint = desiredState.speedMetersPerSecond;
+        turnPositionSetpoint = desiredState.angle.getRadians();
     }
 
     public void updateSim(double dt) {
         double driveVoltage = calculateDriveVoltage();
         driveMotorSim.setInputVoltage(driveVoltage);
         driveMotorSim.update(dt);
+        
         
         double driveAngularVelocity = driveMotorSim.getAngularVelocityRadPerSec();
 
@@ -87,12 +89,12 @@ public class SwerveModule {
         /***
          * How should we convert from angular velocity to translational velocity?
          */
-        driveVelocityMPS = ;
+        driveVelocityMPS = driveAngularVelocity / (Math.PI * 2) * wheelCircumference;
 
         /***
          * How is position, velocity, and time related?
          */
-        drivePositionMeters += ;
+        drivePositionMeters += driveVelocityMPS * dt;
         
         double turnVoltage = calculateTurnVoltage();
         turnMotorSim.setInputVoltage(turnVoltage);
@@ -101,8 +103,8 @@ public class SwerveModule {
         /***
          * Fill these out. Should be quite similar to what you did for the drive motor.
          */
-        double turnVelocity = ;
-        turnPositionRad += ;
+        double turnVelocity = turnMotorSim.getAngularVelocityRadPerSec();
+        turnPositionRad += turnVelocity * dt;
         turnPositionRad = normalizeAngle(turnPositionRad);
     }
 
